@@ -24,6 +24,7 @@ __Here's a demo:__ http://builds.mspi.es <sub><sup>([other themes](#theming-supp
 - [Team Foundation Server 2015/2017 (on-premise) ](https://www.visualstudio.com/en-us/products/tfs-overview-vs.aspx) <sub><sup>([Configuration](#team-foundation-server-20152017-on-premise))</sup></sub>
 - [GitLab (on-premise, beta)](https://gitlab.com) <sub><sup>([Configuration](#gitlab-on-premise-beta))</sup></sub>
 - [BuddyBuild](https://buddybuild.com) <sub><sup>([Configuration](#buddybuild))</sup></sub>
+- [Bamboo](https://www.atlassian.com/software/bamboo) <sub><sup>([Configuration](#bamboo))</sup></sub>
 
 Feel free to make a [Fork](https://github.com/marcells/node-build-monitor/fork) of this repository and add another service.
 
@@ -31,14 +32,18 @@ Jump to the [configuration documentation](#configuration) and see how the servic
 
 ### Quickstart
 
-You have two options:
+You have three options:
 
+- Run node-build-monitor [by downloading the standalone version](#run-the-standalone-version-easiest-way) <sub><sup>(easiest way to run it)</sup></sub>
 - Run node-build-monitor [manually with node](#run-it-manually-during-development) <sub><sup>(preferred during development)</sup></sub>
-- Run node-build-monitor [with Docker](#run-it-with-docker-in-production) <sub><sup>(preferred when you just want to run it)</sup></sub>
+- Run node-build-monitor [with Docker](#run-it-with-docker-in-production) <sub><sup>(preferred in production)</sup></sub>
 
 ### Configuration
 
-The build monitor is configured in the file `config.json` in the app directory.
+The build monitor configuration can be placed in one of the following locations:
+1. `%HomeDirectory%/node-build-monitor-config.json`
+2. `%PathOfExecutable%/config.json` (only for the standalone version)
+3. `app/config.json`
 
 ```json
 {
@@ -281,12 +286,52 @@ Supports [BuddyBuild](https://buddybuild.com/) build service
 
 | Setting          | Description
 |------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-| `project_name`   | Label of the project name, normally IOS or Android.
-| `app_id`         | BuddyBuild Application ID
+| `project_name`   | Label of the project name, normally IOS or Android. Required only, if your app_id is provided.
+| `app_id`         | BuddyBuild Application ID. Leave empty to get all the builds for your user token.
 | `url`            | BuddyBuild Build Query url
 | `access_token`   | Secret token string for the existing user to be used to authenticate against BuddyBuild REST API (if `BUILDBUDDY_ACCESS_TOKEN` environment variable is set, this setting is overwritten)
 | `build_id`       | Leave empty to get the latest build. Provide the build ID to query that specific build.
 | `branch`         | Name of the branch
+
+#### Bamboo
+
+Supports [Bamboo](https://www.atlassian.com/software/bamboo) build service
+
+```json
+{
+  "name": "Bamboo",
+  "configuration": {
+    "url": "http://yourbamboo.com",
+    "planKey": "Plan-Key",
+    "username": "user",
+    "password": "pass"
+  }
+}
+```
+
+| Setting          | Description
+|------------------|------------------------------------
+| `url`            | URL of the Bamboo host
+| `planKey`        | Plan-Key
+| `username`       | HTTP-Basic-Auth Username (optional)
+| `password`       | HTTP-Basic-Auth Password (optional)
+
+### Run the standalone version (easiest way)
+
+1. Download the [latest release](https://github.com/marcells/node-build-monitor/releases/latest) for Linux (x64), MacOS (x64) or Windows (x64)
+2. Place a file `config.json` next to the executable (see the description of the file in the [configuration section](#configuration) above)
+3. Run the executable
+4. Open your browser and navigate to [http://localhost:3000](http://localhost:3000) (switch to fullscreen for the best experience)
+
+### Run it manually (during development)
+
+1. Pull the repository
+2. Run `npm install`
+3. Place a file `config.json` in the app folder (see the description of the file in the [configuration section](#configuration) above)
+4. Run the build monitor with `node app/app.js`
+5. Open your browser and navigate to [http://localhost:3000](http://localhost:3000) (switch to fullscreen for the best experience)
+
+Run `grunt` to execute the tests and check the source code with [JSHint](http://jshint.com/).
 
 ### Run it with Docker (in production)
 
@@ -366,25 +411,16 @@ Ensure that you omit the `tfsProxyUrl` setting in your `config.json`, so that it
 
 Now open your browser and navigate to [http://localhost:12345](http://localhost:12345) to see your running or finished builds. Switch to fullscreen for the best experience.
 
-### Run it manually (during development)
-
-1. Pull the repository
-2. Run `npm install`
-3. Place a file `config.json` in the app folder (see the description of the file in the configuration section above)
-4. Run the build monitor with `node app/app.js`
-5. Open your browser and navigate to [http://localhost:3000](http://localhost:3000) (switch to fullscreen for the best experience)
-
-Run `grunt` to execute the tests and check the source code with [JSHint](http://jshint.com/).
-
 ### Theming support
 
 Here you can check out the existing themes. Feel free to [add your own](#creating-a-new-theme) and make a pull request. It can be done very easy.
 
-| Theme   | Description                                                                        | Preview                                   |
-|---------|------------------------------------------------------------------------------------|-------------------------------------------|
-| default | Works best on bigger screens with a high resolution                                | [Demo](http://builds.mspi.es)             |
-| list    | Displays the builds as a list. Should also work on devices with a lower resolution | [Demo](http://builds.mspi.es?theme=list)  |
-| lingo   | Describes the build status in form of a hand-written sentence                      | [Demo](http://builds.mspi.es?theme=lingo) |
+| Theme   | Description                                                                        | Preview
+|---------|------------------------------------------------------------------------------------|-------------------------------------------
+| default | Works best on bigger screens with a high resolution                                | [Demo](http://builds.mspi.es)
+| lowres  | Works best on screens with a lower resolution                                      | [Demo](http://builds.mspi.es?theme=lowres)
+| list    | Displays the builds as a list, instead of tiles                                    | [Demo](http://builds.mspi.es?theme=list)
+| lingo   | Describes the build status in form of a hand-written sentence                      | [Demo](http://builds.mspi.es?theme=lingo)
 
 You can switch the themes by the url parameter `theme`.
 e.g.: [http://localhost:3000?theme=list](http://localhost:3000?theme=list)

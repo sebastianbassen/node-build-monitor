@@ -1,6 +1,6 @@
 {
   "name": "node-build-monitor",
-  "version": "0.9.11",
+  "version": "0.9.16",
   "description": "A Build Monitor written in Node.js, which supports several build services and can be extended easily.",
   "author": "Marcell Spies <marcells@gmx.de>",
   "contributors": [
@@ -17,11 +17,12 @@
     "async": "2.1.5",
     "errorhandler": "1.5.0",
     "express": "4.15.2",
-    "pug": "2.0.0-beta11",
     "moment": "2.17.1",
     "morgan": "1.8.1",
+    "pug": "2.0.0-beta11",
     "request": "2.81.0",
-    "socket.io": "1.7.3"
+    "socket.io": "1.7.3",
+    "striptags": "^3.0.1"
   },
   "devDependencies": {
     "chai": "3.5.0",
@@ -42,10 +43,15 @@
   "scripts": {
     "start": "node app/app.js",
     "ci": "grunt ci",
-    "test": "grunt mochaTest:test"
+    "test": "grunt mochaTest:test",
+    "pkg": "pkg -c ./package.json --out-dir ./release ./app/app.js"
   },
   "engines": {
     "node": ">= 6.10.0"
+  },
+  "pkg": {
+    "scripts": ["app/services/**/*.js", "node_modules/pug/register.js", "node_modules/pug/lib/**/*.js"],
+    "assets": ["app/public/**/*", "app/views/**/*", "app/config.json"]
   },
   "license": "MIT"
 }

@@ -317,18 +317,11 @@ module.exports = function () {
     });
   }
 
-  function updateProject(project, callback) {
-    log('Updating project:', project.name_with_namespace);
-    if (self.config.slugs.indexOf('*/*') > -1 || self.config.slugs.indexOf(project.path_with_namespace) > -1) {
-      if (typeof project.builds === 'undefined') {
-        project.builds = {};
-      }
-      if (project.builds_enabled === true) {
-        fetchProjectBuilds(project, function (results) {
-          var i, build, builds = {};
-          for (i = 0; i < results.length; i = i + 1) {
-            build = results[i];
-            builds[build.monitor.id] = build;
+    function updateProject(project, callback) {
+        log('Updating project:', project.name_with_namespace);
+        if (self.config.slugs.indexOf('*/*') > -1 || self.config.slugs.indexOf(project.namespace.name + "/*")  > -1 || self.config.slugs.indexOf(project.path_with_namespace) > -1) {
+          if (typeof project.builds === 'undefined') {
+              project.builds = {};
           }
           if (Object.keys(builds).length) {
             project.builds = builds;
