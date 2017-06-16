@@ -7,7 +7,8 @@
         <div class="medium-height nowrap prio-vertical-two">
           <span class="info-block middle">
             <span data-bind="text: project" class="project"></span>
-            <span data-bind="text: definition, visible: definition" class="definition project-definition-separator"></span>
+            <span data-bind="text: definition, visible: definition"
+                  class="definition project-definition-separator"></span>
           </span>
           <span class="reason-block prio-horizontal-two">
             <span class="reason-icon middle fa fa-cog"></span>
@@ -20,15 +21,15 @@
           <span class="middle duration-block reset-height prio-horizontal-three">
             <span class="duration-icon fa fa-clock-o"></span>
             <span data-bind="text: time" class="middle time"></span>
-            <br />
+            <br/>
             <span data-bind="text: duration" class="middle time"></span>
           </span>
         </div>
         <div class="clear"></div>
         <div class="medium-height nowrap prio-vertical-three">
-          <span class="middle requestedFor-block">
-            <span class="middle fa fa-user"></span>
-            <span data-bind="text: requestedFor" class="middle for"></span>
+          <span class="middle requestedFor-block" style="margin-left: -15px">
+              <img width="34px" height="34px" data-bind="attr:{src: avatarUrl}" class="middle for"/>
+              <span data-bind="text: requestedFor" class="middle for"></span>
           </span>
           <span class="middle warnings prio-horizontal-one">
             <span data-bind="visible: hasWarnings" class="middle fa fa-exclamation-triangle"></span>
@@ -38,7 +39,8 @@
         <div class="clear"></div>
       </div>
 
-      <div data-bind="fade: isMenuAvailable() && isMenuVisible(), fadeInDuration: 200, fadeOutDuration: 10" style="display: none" class="overlay">
+      <div data-bind="fade: isMenuAvailable() && isMenuVisible(), fadeInDuration: 200, fadeOutDuration: 10"
+           style="display: none" class="overlay">
         <a data-bind="visible: url, attr: { href: url }" target="_blank">
           <i class="fa fa-external-link"></i>
         </a>
