@@ -4,11 +4,15 @@ define(['ko', 'moment', 'countdown'], function (ko, moment, countdown) {
 
         this.id = ko.observable();
         this.isRunning = ko.observable();
+        this.isQueued = ko.observable();
         this.project = ko.observable();
+        this.branch = ko.observable();
+        this.commit = ko.observable();
         this.definition = ko.observable();
         this.number = ko.observable();
         this.startedAt = ko.observable();
         this.finishedAt = ko.observable();
+        this.queuedAt = ko.observable();
         this.status = ko.observable(build.status);
         this.statusText = ko.observable();
         this.avatarUrl = ko.observable();
@@ -21,11 +25,15 @@ define(['ko', 'moment', 'countdown'], function (ko, moment, countdown) {
         this.update = function (build) {
             this.id(build.id);
             this.isRunning(build.isRunning);
+            this.isQueued(build.isQueued);
             this.project(build.project);
+            this.branch(build.branch);
+            this.commit(build.commit);
             this.definition(build.definition);
             this.number(build.number);
             this.startedAt(moment(build.startedAt));
             this.finishedAt(moment(build.finishedAt));
+            this.queuedAt(moment(build.queuedAt));
             this.status(build.status);
             this.statusText(build.statusText);
             this.avatarUrl(build.avatarUrl)
@@ -50,13 +58,19 @@ define(['ko', 'moment', 'countdown'], function (ko, moment, countdown) {
         this.time = ko.forcibleComputed(function () {
             return this.isRunning() ?
                 'started ' + moment(this.startedAt()).fromNow() :
-                'finished ' + moment(this.finishedAt()).fromNow();
+                (this.isQueued() ?
+                    'not started yet' :
+                    'finished ' + moment(this.finishedAt()).fromNow()
+                );
         }, this);
 
         this.duration = ko.forcibleComputed(function () {
             return this.isRunning() ?
                 'running for ' + countdown(this.startedAt()).toString() :
-                'ran for ' + countdown(this.startedAt(), this.finishedAt()).toString();
+                (this.isQueued() ?
+                    'queued for ' + countdown(this.startedAt(), this.queuedAt()).toString() :
+                    'ran for ' + countdown(this.startedAt(), this.finishedAt()).toString()
+                );
         }, this);
 
         this.isMenuAvailable = ko.computed(function () {

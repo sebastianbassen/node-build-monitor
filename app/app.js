@@ -27,6 +27,27 @@ function getConfig() {
   return JSON.parse(fs.readFileSync(availableFileNames[0], 'utf8'));
 }
 
+function printStartupInformation() {
+    const importantEnvironmentVariables = [
+        {
+            name : 'PORT',
+            defaultValue : '3000'
+        },
+        {
+            name : 'NODE_TLS_REJECT_UNAUTHORIZED',
+            defaultValue : '1'
+        }];
+
+    console.log(`Printing environment Variables...`);
+    importantEnvironmentVariables
+        .map(x => ({ variable : x, stringValue : process.env.hasOwnProperty(x.name) ? process.env[x.name] : `unset (Default: ${x.defaultValue})` }))
+        .forEach(x => console.log(`    ${x.variable.name} = ${x.stringValue}`));
+
+    console.log('node-build-monitor is starting...');
+}
+
+printStartupInformation();
+
 var config = getConfig();
 
 app.set('port', process.env.PORT || 3000);
@@ -36,6 +57,11 @@ app.use(morgan('combined', { skip: (req, res) => res.statusCode < 400 }));
 app.get('/', function(req, res) {
     res.render('index', {
         title: 'Build Monitor'
+    });
+});
+app.get('/health', function(req, res) {
+    res.render('health', {
+        title: 'Build Monitor Health'
     });
 });
 app.use(express.static(path.join(__dirname, 'public')));
@@ -49,7 +75,7 @@ var server = http.createServer(app),
     io = socketio.listen(server);
 
 server.listen(app.get('port'), function() {
-  console.log('node-build-monitor ' + version + ' is listening on port ' + app.get('port'));
+  console.log(`node-build-monitor ${version} is listening on port ${app.get('port')}...`);
 });
 
 // run socket.io
@@ -69,7 +95,7 @@ for (var i = 0; i < config.services.length; i++) {
     var serviceConfig = config.services[i],
         service = new (require('./services/' + serviceConfig.name))();
 
-    service.configure(serviceConfig.configuration);
+    service.configure(tryExpandEnvironmentVariables(config.monitor, serviceConfig.configuration));
 
     monitor.watchOn(service);
 }
@@ -82,3 +108,28 @@ monitor.on('buildsChanged', function (changes) {
 
 // run monitor
 monitor.run();
+
+// helpers
+function tryExpandEnvironmentVariables(monitorConfiguration, serviceConfiguration) {
+    if (monitorConfiguration.expandEnvironmentVariables) {
+        for (var property in serviceConfiguration) {
+            serviceConfiguration[property] = tryExpandEnvironmentVariable(serviceConfiguration[property]);
+        }
+    }
+
+    return serviceConfiguration;
+}
+
+function tryExpandEnvironmentVariable(value) {
+    const environmentPattern = /^\${(.*?)}$/g;
+
+    if (typeof value === 'string') {
+        let match = environmentPattern.exec(value);
+
+        if (match && match.length == 2) {
+            return process.env[match[1]];
+        }
+    }
+
+    return value;
+}

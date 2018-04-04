@@ -20,25 +20,28 @@ var async = require('async'),
             newBuilds.sort(function (a, b) {
                 if(a.project > b.project) return 1;
                 if(a.project < b.project) return -1;
- 
+
                 return 0;
             });
         }
         else {
-            var takeDate = function (build) {
+            sortBuildsByDate(newBuilds);
+        }
+    },
+    sortBuildsByDate = function(newBuilds){
+        var takeDate = function (build) {
                 return build.isRunning ? build.startedAt : build.finishedAt;
             };
 
-            newBuilds.sort(function (a, b) {
-                var dateA = takeDate(a);
-                var dateB = takeDate(b);
+        newBuilds.sort(function (a, b) {
+            var dateA = takeDate(a);
+            var dateB = takeDate(b);
 
-                if(dateA < dateB) return 1;
-                if(dateA > dateB) return -1;
+            if(dateA < dateB) return 1;
+            if(dateA > dateB) return -1;
 
-                return 0;
-            });
-        }
+            return 0;
+        });
     },
     distinctBuildsByETag = function (newBuilds) {
         var unique = {};
@@ -152,12 +155,13 @@ module.exports = function () {
                   callback();
                   return;
                 }
-
-                if(self.configuration.latestBuildOnly) {
-                    Array.prototype.push.apply(allBuilds, [pluginBuilds.shift()]);
-                }
-                else {
-                    Array.prototype.push.apply(allBuilds, pluginBuilds);
+                if(pluginBuilds.length > 0) {
+                    if(self.configuration.latestBuildOnly) {
+                        sortBuildsByDate(pluginBuilds);
+                        Array.prototype.push.apply(allBuilds, [pluginBuilds.shift()]);
+                    } else {
+                        Array.prototype.push.apply(allBuilds, pluginBuilds);
+                    }
                 }
                 callback();
             });
